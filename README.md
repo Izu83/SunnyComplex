@@ -24,8 +24,13 @@ The staff password is created on first run in `data/admin-password.txt`, or set 
 `SUNNY_ADMIN_PASSWORD` environment variable. Reservations and orders are stored in `data/`,
 which is never served to visitors and is not part of this repository.
 
-## On a static host (GitHub Pages)
+## On a static host (GitHub Pages): demo mode
 
-The pages, menu and floor plan all work, but there is no server to save anything: the booking
-and order forms say online booking is unavailable and point guests to the phone, and the staff
-pages cannot sign in.
+There is no server there, so `assets/demo-api.js` answers the same calls inside the browser and
+keeps bookings, orders and couriers in that browser's localStorage, with the same rules as
+`server.py`. Everything works for a demo, but only on the one device: a booking made on a phone
+does not reach /admin on a laptop. The staff pages open without a password (any password works
+after signing out) and show a "Демо" bar with **Примерен ден** (fill today with sample bookings
+and orders) and **Изчисти** (start empty).
+
+On localhost the real `server.py` is always used, never demo mode.
