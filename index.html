@@ -2,7 +2,7 @@
 <html lang="bg" data-season="summer">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <script src="assets/serve.js" data-route="/"></script>
 <title>Sunny Complex – Радомир</title>
 <meta name="description" content="Sunny Complex в Радомир – открит басейн с детска секция, бар-ресторант и общо 414 места: 264 в ресторанта и 150 край басейна. На 40 км от София.">
@@ -62,7 +62,7 @@
   }
   :root[data-season="winter"] { --season: var(--winter); }
 
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; touch-action: pan-x pan-y; }
   html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
   body {
     margin: 0; background: var(--bg); color: var(--text);

@@ -2,7 +2,7 @@
 <html lang="bg" data-season="summer">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <script src="../assets/serve.js" data-route="/reservation/"></script>
 <script src="../assets/demo-api.js"></script>
 <title>Резервация – Sunny Complex</title>
@@ -60,7 +60,7 @@
   }
   :root[data-season="winter"] { --season: var(--winter); }
 
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; touch-action: pan-x pan-y; }
   [hidden] { display: none !important; }
   html { -webkit-text-size-adjust: 100%; }
   body { margin: 0; background: var(--bg); color: var(--text); font: 400 var(--step-0)/1.6 var(--font-text); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
