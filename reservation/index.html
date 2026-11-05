@@ -8,6 +8,18 @@
 <title>Резервация – Sunny Complex</title>
 <meta name="description" content="Резервирайте маса в Sunny Complex, Радомир: изберете ден, час и маса от плана на ресторанта, в зала за пушачи или непушачи.">
 <meta name="theme-color" content="#0c0b0a">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Sunny Complex">
+<meta property="og:locale" content="bg_BG">
+<meta property="og:title" content="Резервация – Sunny Complex">
+<meta property="og:description" content="Резервирайте маса в Sunny Complex, Радомир: изберете ден, час и маса от плана на ресторанта, в зала за пушачи или непушачи.">
+<meta property="og:url" content="https://izu83.github.io/SunnyComplex/reservation/">
+<meta property="og:image" content="https://izu83.github.io/SunnyComplex/assets/share.jpg">
+<meta property="og:image:width" content="1080">
+<meta property="og:image:height" content="566">
+<meta property="og:image:alt" content="Басейнът и ресторантът на Sunny Complex в Радомир">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="apple-touch-icon" href="../assets/icon-180.png">
 <link rel="icon" href="../assets/logo-sun.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -130,6 +142,8 @@
   .day:hover { box-shadow: var(--raised-hover); }
   .day[aria-pressed="true"] { background: var(--gold-metal); color: #3b2706; box-shadow: var(--gold-press); }
   .day[aria-pressed="true"] b { color: #1d1404; }
+  .day.shut { opacity: .45; }
+  .day.shut b { text-decoration: line-through; text-decoration-thickness: 2px; }
   .day.other { width: 96px; align-content: center; color: var(--gold); }
   .day.other svg { width: 22px; height: 22px; }
   .day.other span { text-align: center; }
@@ -204,6 +218,15 @@
   .field input[aria-invalid="true"] { box-shadow: var(--well), 0 0 0 2px var(--summer); }
   .note { min-height: 1.4em; font-size: .93rem; color: var(--gold-hi); }
   .note.warn { color: var(--summer); }
+  .agree { display: flex; gap: 12px; align-items: flex-start; font-size: .9rem; line-height: 1.45; color: var(--text-dim); cursor: pointer; }
+  .agree input { appearance: none; flex: none; display: grid; place-items: center; width: 24px; height: 24px; margin: 0; border-radius: 8px; background: #0a0908; box-shadow: var(--well); cursor: pointer; }
+  .agree input:checked { background: var(--gold-metal); box-shadow: var(--gold-press); }
+  .agree input:checked::after { content: ""; width: 6px; height: 11px; border: solid #1d1404; border-width: 0 2.5px 2.5px 0; transform: translateY(-1px) rotate(45deg); }
+  .agree input[aria-invalid="true"] { box-shadow: var(--well), 0 0 0 2px var(--summer); }
+  .agree a { color: var(--gold); }
+  .mine { display: inline-flex; align-items: center; gap: 10px; margin-top: 18px; padding: 10px 18px 10px 12px; border-radius: 999px; background: var(--surface); box-shadow: var(--raised); color: var(--gold); font-weight: 600; text-decoration: none; }
+  .mine svg { width: 20px; height: 20px; }
+  .mine:hover { box-shadow: var(--raised-hover); }
   .down { padding: 14px 16px; border-radius: 16px; background: rgba(255,138,30,.08); box-shadow: inset 0 0 0 1px rgba(255,138,30,.4); color: var(--text); font-size: .93rem; }
   .down b { color: var(--summer); }
   .down a { color: var(--gold); font-weight: 600; }
@@ -247,13 +270,22 @@
     .panel { position: static; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; column-gap: 28px; }
     .panel > h2, .panel > .done { grid-column: 1 / -1; }
   }
-  @media (max-width: 1100px) {
+  /* The header row is full on mid-size screens: tighter links, the short season label */
+  @media (max-width: 1460px) {
+    .bar .frame { gap: 14px; }
+    .mark { flex: none; }
+    .links a { padding: 10px 9px; }
+    .season-badge .label-long { display: none; }
+  }
+  @media (max-width: 1280px) {
     .links { display: none; }
     .menu-btn { display: inline-grid; place-items: center; margin-left: auto; width: 46px; height: 46px; border: 0; border-radius: 50%; cursor: pointer; background: var(--surface); box-shadow: var(--raised); color: var(--gold); }
     .menu-btn svg { width: 22px; height: 22px; }
     .bar .book-open { display: none; }
     .bar.open .links { display: grid; position: absolute; top: var(--bar-h); left: var(--margin); right: var(--margin); padding: 10px; gap: 2px; background: var(--bg-3); border-radius: var(--radius); box-shadow: 0 30px 60px -20px rgba(0,0,0,1); }
     .bar.open .links a { padding: 14px 16px; font-size: 1.05rem; }
+  }
+  @media (max-width: 1100px) {
     .foot-plate { grid-template-columns: 1fr 1fr; }
   }
   @media (max-width: 900px) {
@@ -314,6 +346,7 @@
       <li><a href="../#seasons">Сезони</a></li>
       <li><a href="../#restaurant">Ресторант</a></li>
       <li><a href="../menu/">Меню</a></li>
+      <li><a href="../#events">Празници</a></li>
       <li><a href="../#reviews">Отзиви</a></li>
       <li><a href="../#contact">Контакти</a></li>
     </ul>
@@ -335,6 +368,7 @@
       <li><svg aria-hidden="true"><use href="#i-smoke"/></svg>Пушачи и непушачи</li>
       <li><svg aria-hidden="true"><use href="#i-clock"/></svg>Всеки ден, 9:00 – 1:00</li>
     </ul>
+    <a class="mine" id="mine" href="status/" hidden><svg aria-hidden="true"><use href="#i-check"/></svg><span></span></a>
   </section>
 
   <div class="frame res" id="booking">
@@ -407,6 +441,7 @@
         <label class="field"><span>Име</span><input type="text" name="name" autocomplete="name" required placeholder="Вашето име"></label>
         <label class="field"><span>Телефон</span><input type="tel" name="phone" autocomplete="tel" inputmode="tel" required placeholder="08X XXX XXXX"></label>
         <label class="field"><span>Бележка <i>(по желание)</i></span><textarea name="note" rows="2" placeholder="Повод, детско столче, алергии"></textarea></label>
+        <label class="agree"><input type="checkbox" name="agree"><span>Прочетох <a href="../privacy/" target="_blank">политиката за поверителност</a>. Името и телефонът са само за тази резервация.</span></label>
         <p class="note" id="note" aria-live="polite"></p>
         <div class="actions">
           <button type="submit" class="btn"><svg aria-hidden="true"><use href="#i-mail"/></svg>Изпрати заявка</button>
@@ -419,7 +454,9 @@
         <span class="tick" aria-hidden="true"><svg><use href="#i-check"/></svg></span>
         <h3>Почти готово</h3>
         <p id="doneText"></p>
+        <p class="fine">Линкът по-долу показва дали резервацията е потвърдена, и от него можете да я откажете. Пазим го и в този браузър.</p>
         <div class="actions">
+          <a class="btn" id="statusLink" href="status/"><svg aria-hidden="true"><use href="#i-check"/></svg>Вижте резервацията</a>
           <button type="button" class="btn dark" id="again">Нова резервация</button>
         </div>
       </div>
@@ -462,7 +499,7 @@
       </div>
     </div>
     <div class="foot-bottom">
-      <span>© 2026 Sunny Complex, Радомир</span>
+      <span>© 2026 Sunny Complex, Радомир · <a href="../privacy/">Поверителност</a></span>
       <button type="button" class="to-top" id="toTop" aria-label="Нагоре"><svg aria-hidden="true"><use href="#i-up"/></svg></button>
     </div>
   </div>
@@ -511,7 +548,7 @@
      Reservations are saved by server.py and appear in /admin. If it can't be reached,
      the form says so and points to the phone instead. */
   const form = $('#form');
-  let online = true, booked = [];
+  let online = true, booked = [], blocked = [], dayClosed = false, closedDays = new Set();
   function setOnline(v) {
     online = v;
     $('#down').hidden = v;
@@ -524,10 +561,13 @@
       if (!r.ok) throw new Error(r.status);
       const j = await r.json();
       setOnline(true);
-      if (j.day === iso(S.day)) booked = j.bookings;
-    } catch { setOnline(false); booked = []; }
+      if (j.day === iso(S.day)) { booked = j.bookings; blocked = j.blocked || []; dayClosed = !!j.closed; }
+      closedDays = new Set(j.closed_days || []);
+    } catch { setOnline(false); booked = []; blocked = []; dayClosed = false; }
   }
   const isBusy = (t, hour) => booked.some(b => b.table === t.id && Math.abs(b.hour - hour) < floor.duration);
+  /* Held back by the staff for the whole day (a private party), or the whole restaurant is closed */
+  const isHeld = t => dayClosed || blocked.includes(t.id);
 
   /* ---------- Dates ---------- */
   const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -564,13 +604,14 @@
 
   /* ---------- Availability ---------- */
   const status = (t, hour = S.hour) => {
+    if (isHeld(t)) return 'held';
     if (isBusy(t, hour)) return 'busy';
     if (t.seats < S.guests) return 'small';
     if (S.zone !== 'all' && t.zone !== S.zone) return 'away';
     return 'free';
   };
-  const freeAt = (hour, zone = S.zone) => TABLES.filter(t => !isBusy(t, hour) && t.seats >= S.guests && (zone === 'all' || t.zone === zone));
-  const statusText = (t, st) => ({ free: 'Свободна', busy: `Заета около ${hhmm(S.hour)}`, small: `За до ${people(t.seats)}`, away: `Зала „${ZONES[t.zone]}“` })[st];
+  const freeAt = (hour, zone = S.zone) => TABLES.filter(t => !isHeld(t) && !isBusy(t, hour) && t.seats >= S.guests && (zone === 'all' || t.zone === zone));
+  const statusText = (t, st) => ({ free: 'Свободна', held: 'Не е свободна този ден', busy: `Заета около ${hhmm(S.hour)}`, small: `За до ${people(t.seats)}`, away: `Зала „${ZONES[t.zone]}“` })[st];
 
   /* ---------- Render everything from the state ---------- */
   let msgTimer;
@@ -583,7 +624,12 @@
   function update() {
     /* Day */
     const inStrip = strip.findIndex(d => same(d, S.day));
-    dayBtns.forEach((b, i) => b.setAttribute('aria-pressed', String(i === inStrip)));
+    dayBtns.forEach((b, i) => {
+      const shut = closedDays.has(iso(strip[i]));
+      b.setAttribute('aria-pressed', String(i === inStrip));
+      b.classList.toggle('shut', shut);
+      b.setAttribute('aria-label', cap(longDay(strip[i])) + (shut ? ', затворено за частно събитие' : ''));
+    });
     otherBtn.setAttribute('aria-pressed', String(inStrip < 0));
     $('#otherLbl').textContent = inStrip < 0 ? `${S.day.getDate()} ${MON[S.day.getMonth()]}` : 'Друга дата';
     const wd = S.day.getDay();
@@ -593,12 +639,12 @@
     const fh = firstHour(S.day);
     if (S.hour === null || S.hour < fh) S.hour = fh <= 19 ? 19 : fh;
     timeBtns.forEach(b => {
-      const h = +b.dataset.h, past = h < fh, n = past ? 0 : freeAt(h).length;
+      const h = +b.dataset.h, past = h < fh || dayClosed, n = past ? 0 : freeAt(h).length;
       b.disabled = past;
       b.setAttribute('aria-pressed', String(h === S.hour));
       b.classList.toggle('full', !past && n === 0);
-      b.querySelector('small').textContent = past ? 'мина' : n ? `${n} ${tablesWord(n)}` : 'няма';
-      b.setAttribute('aria-label', past ? `${hhmm(h)}, отминал час` : `${hhmm(h)}, ${n ? `${n} свободни ${tablesWord(n)}` : 'няма свободни маси'}`);
+      b.querySelector('small').textContent = dayClosed ? 'затворено' : past ? 'мина' : n ? `${n} ${tablesWord(n)}` : 'няма';
+      b.setAttribute('aria-label', dayClosed ? `${hhmm(h)}, затворено` : past ? `${hhmm(h)}, отминал час` : `${hhmm(h)}, ${n ? `${n} свободни ${tablesWord(n)}` : 'няма свободни маси'}`);
     });
 
     /* Guests and halls */
@@ -618,7 +664,7 @@
     /* Tables */
     TABLES.forEach(t => {
       const st = status(t), sel = t.id === S.table;
-      t.g.setAttribute('class', `tbl ${sel ? 'sel' : st}`);
+      t.g.setAttribute('class', `tbl ${sel ? 'sel' : st === 'held' ? 'busy' : st}`);
       t.g.setAttribute('aria-pressed', String(sel));
       t.g.setAttribute('aria-disabled', String(st !== 'free'));
       t.g.setAttribute('aria-label', `${tableName(t)}, ${Floor.describe(t, floor)}. ${sel ? 'Избрана' : statusText(t, st)}.`);
@@ -630,7 +676,8 @@
     $('#freeList').innerHTML = free.map(t => `<li><button type="button" data-id="${t.id}" aria-pressed="${t.id === S.table}"><b>${t.id}</b>${t.booth ? 'Сепаре · ' : ''}до ${t.seats} места · ${ZONES[t.zone]}</button></li>`).join('');
 
     /* Plan message */
-    if (lost) say(lost, true);
+    if (dayClosed) say(`${cap(longDay(S.day))} ресторантът е зает с частно събитие. Изберете друг ден или се обадете на <a href="tel:+359885999989">+359 88 599 9989</a>.`, true, true);
+    else if (lost) say(lost, true);
     else if (S.guests > BIGGEST) say(`Най-голямата маса е за ${BIGGEST} души. За ${people(S.guests)} ще съединим маси: изпратете заявката без маса или се обадете на <a href="tel:+359885999989">+359 88 599 9989</a>.`, false, true);
     else if (!free.length) say(`В ${hhmm(S.hour)} няма свободни маси${S.zone !== 'all' ? ' в тази зала' : ''}. Опитайте друг час${S.zone !== 'all' ? ' или зала' : ''}.`, true, true);
     else say('');
@@ -654,6 +701,7 @@
     const t = byId[id];
     let st = status(t);
     if (st === 'away') { S.zone = 'all'; document.querySelector('#zones input[value="all"]').checked = true; st = status(t); }
+    if (st === 'held') { say(`${tableName(t)} не е свободна на този ден. Изберете друга маса.`, true); return; }
     if (st === 'busy') { say(`${tableName(t)} е заета около ${hhmm(S.hour)}. Изберете друга маса или друг час.`, true); return; }
     if (st === 'small') { say(`${tableName(t)} е за до ${people(t.seats)}. За ${people(S.guests)} изберете по-голяма маса.`, true); return; }
     S.table = S.table === id ? null : id;
@@ -730,19 +778,34 @@
     if (scrollable() && S.zone !== 'all') wrap.scrollTo({ left: S.zone === 'clean' ? wrap.scrollWidth : 0, behavior: reduce ? 'auto' : 'smooth' });
   });
 
+  /* ---------- The guest's own bookings, kept in this browser so they can check or cancel them ---------- */
+  const mine = {
+    get() { try { return JSON.parse(localStorage.getItem('sunny-bookings')) || []; } catch { return []; } },
+    add(b) { try { localStorage.setItem('sunny-bookings', JSON.stringify([b, ...mine.get().filter(x => x.id !== b.id)].slice(0, 10))); } catch {} },
+  };
+  function showMine() {
+    const n = mine.get().filter(b => b.day >= iso(today)).length;
+    $('#mine').hidden = !n;
+    $('#mine span').textContent = n === 1 ? 'Вашата резервация' : `Вашите резервации (${n})`;
+  }
+  showMine();
+
   /* ---------- Sending the request ---------- */
   const note = $('#note'), sendBtn = form.querySelector('[type="submit"]');
   form.addEventListener('submit', async e => {
     e.preventDefault();
     note.className = 'note'; note.textContent = '';
     const name = form.name.value.trim(), phone = form.phone.value.trim(), extra = form.note.value.trim();
-    const badName = !name, badPhone = phone.replace(/\D/g, '').length < 9;
+    const badName = !name, badPhone = phone.replace(/\D/g, '').length < 9, badAgree = !form.agree.checked;
     form.name.setAttribute('aria-invalid', String(badName));
     form.phone.setAttribute('aria-invalid', String(badPhone));
+    form.agree.setAttribute('aria-invalid', String(badAgree));
     const fail = (text, focus) => { note.className = 'note warn'; note.textContent = text; if (focus) focus(); };
+    if (dayClosed) return fail('На този ден не приемаме резервации. Изберете друг ден.');
     if (!S.table && S.guests <= BIGGEST) return fail('Изберете маса от плана.', () => { say('Изберете свободна маса от плана.', true); wrap.scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' }); });
     if (badName) return fail('Моля, напишете име.', () => form.name.focus());
     if (badPhone) return fail('Моля, напишете телефон, на който да ви потърсим.', () => form.phone.focus());
+    if (badAgree) return fail('Отбележете, че сте прочели политиката за поверителност.', () => form.agree.focus());
 
     const t = byId[S.table];
     const where = t ? `${tableName(t).toLowerCase()} (${ZONES[t.zone].toLowerCase()})` : 'съединени маси';
@@ -752,12 +815,14 @@
     try {
       const r = await fetch('/api/reservations', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ day: iso(S.day), hour: S.hour, table: S.table, guests: S.guests, name, phone, note: extra }),
+        body: JSON.stringify({ day: iso(S.day), hour: S.hour, table: S.table, guests: S.guests, name, phone, note: extra, agree: true }),
       });
       const j = await r.json().catch(() => ({}));
       if (r.status === 409) { await fetchBookings(); update(); return fail(j.error ? `${j.error} Изберете друга.` : 'Масата току-що беше заета. Изберете друга.'); }
       if (!r.ok) return fail(j.error || 'Нещо се обърка. Опитайте пак или се обадете на +359 88 599 9989.');
       doneText = `Заявка № ${j.id}: ${where}, ${when}, ${people(S.guests)}. Ще ви се обадим на ${phone}, за да потвърдим.`;
+      $('#statusLink').href = `status/?id=${j.id}&c=${encodeURIComponent(j.code)}`;
+      mine.add({ id: j.id, code: j.code, day: iso(S.day), hour: S.hour });
     } catch {
       setOnline(false);
       return fail('Не успяхме да запишем заявката. Опитайте пак или се обадете на +359 88 599 9989.');
@@ -767,6 +832,7 @@
     form.hidden = true; $('.sum').hidden = true; $('#done').hidden = false;
     note.textContent = '';
     S.table = null;
+    showMine();
     await fetchBookings(); update();
   });
   $('#again').addEventListener('click', () => {

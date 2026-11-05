@@ -8,6 +8,18 @@
 <title>Меню – Sunny Complex</title>
 <meta name="description" content="Менюто на Sunny Complex, Радомир: суши, пици на пещ, бургери, скара на дървени въглища, морски дарове, паста, ризото и десерти. Цени в евро.">
 <meta name="theme-color" content="#0c0b0a">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Sunny Complex">
+<meta property="og:locale" content="bg_BG">
+<meta property="og:title" content="Меню – Sunny Complex">
+<meta property="og:description" content="Менюто на Sunny Complex, Радомир: суши, пици на пещ, бургери, скара на дървени въглища, морски дарове, паста, ризото и десерти. Цени в евро.">
+<meta property="og:url" content="https://izu83.github.io/SunnyComplex/menu/">
+<meta property="og:image" content="https://izu83.github.io/SunnyComplex/assets/share.jpg">
+<meta property="og:image:width" content="1080">
+<meta property="og:image:height" content="566">
+<meta property="og:image:alt" content="Басейнът и ресторантът на Sunny Complex в Радомир">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="apple-touch-icon" href="../assets/icon-180.png">
 <link rel="icon" href="../assets/logo-sun.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -276,6 +288,12 @@
   .seg span { padding: 12px 8px; border-radius: 12px; text-align: center; font-weight: 600; font-size: .93rem; color: var(--text-dim); cursor: pointer; }
   .seg input:checked + span { background: var(--surface); color: var(--gold); box-shadow: var(--raised); }
   .seg input:focus-visible + span { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .agree { display: flex; gap: 12px; align-items: flex-start; font-size: .9rem; line-height: 1.45; color: var(--text-dim); cursor: pointer; }
+  .agree input { appearance: none; flex: none; display: grid; place-items: center; width: 24px; height: 24px; margin: 0; border-radius: 8px; background: #0a0908; box-shadow: var(--well); cursor: pointer; }
+  .agree input:checked { background: var(--gold-metal); box-shadow: var(--gold-press); }
+  .agree input:checked::after { content: ""; width: 6px; height: 11px; border: solid #1d1404; border-width: 0 2.5px 2.5px 0; transform: translateY(-1px) rotate(45deg); }
+  .agree input[aria-invalid="true"] { box-shadow: var(--well), 0 0 0 2px var(--summer); }
+  .agree a { color: var(--gold); }
   .onote { min-height: 1.3em; font-size: .92rem; color: var(--gold-hi); }
   .onote.warn { color: var(--summer); }
   .done { display: grid; gap: 14px; justify-items: start; padding-top: 10px; }
@@ -304,13 +322,22 @@
   .js [data-fade] { opacity: 0; transition: opacity .7s var(--ease); }
   .js [data-fade].in { opacity: 1; }
 
-  @media (max-width: 1100px) {
+  /* The header row is full on mid-size screens: tighter links, the short season label */
+  @media (max-width: 1460px) {
+    .bar .frame { gap: 14px; }
+    .mark { flex: none; }
+    .links a { padding: 10px 9px; }
+    .season-badge .label-long { display: none; }
+  }
+  @media (max-width: 1280px) {
     .links { display: none; }
     .menu-btn { display: inline-grid; place-items: center; margin-left: auto; width: 46px; height: 46px; border: 0; border-radius: 50%; cursor: pointer; background: var(--surface); box-shadow: var(--raised); color: var(--gold); }
     .menu-btn svg { width: 22px; height: 22px; }
     .bar .book-open { display: none; }
     .bar.open .links { display: grid; position: absolute; top: var(--bar-h); left: var(--margin); right: var(--margin); padding: 10px; gap: 2px; background: var(--bg-3); border-radius: var(--radius); box-shadow: 0 30px 60px -20px rgba(0,0,0,1); }
     .bar.open .links a { padding: 14px 16px; font-size: 1.05rem; }
+  }
+  @media (max-width: 1100px) {
     .hero-grid { grid-template-columns: 1fr; }
     .trio { max-width: 680px; }
     .foot-plate { grid-template-columns: 1fr 1fr; }
@@ -394,6 +421,7 @@
       <li><a href="../#seasons">Сезони</a></li>
       <li><a href="../#restaurant">Ресторант</a></li>
       <li><a href="./" aria-current="page">Меню</a></li>
+      <li><a href="../#events">Празници</a></li>
       <li><a href="../#reviews">Отзиви</a></li>
       <li><a href="../#contact">Контакти</a></li>
     </ul>
@@ -471,7 +499,7 @@
       </div>
     </div>
     <div class="foot-bottom">
-      <span>© 2026 Sunny Complex, Радомир</span>
+      <span>© 2026 Sunny Complex, Радомир · <a href="../privacy/">Поверителност</a></span>
       <button type="button" class="to-top" id="toTop" aria-label="Нагоре"><svg aria-hidden="true"><use href="#i-up"/></svg></button>
     </div>
   </div>
@@ -541,6 +569,7 @@
         </div>
       </div>
       <label class="field"><span>Бележка <i>(по желание)</i></span><textarea name="note" rows="2" placeholder="Звънец, без лук, прибори"></textarea></label>
+      <label class="agree"><input type="checkbox" name="agree"><span>Прочетох <a href="../privacy/" target="_blank">политиката за поверителност</a>. Данните са само за тази доставка.</span></label>
       <div class="sums"><div class="grand"><span>Общо с доставка</span><b id="sumTotal2"></b></div></div>
       <p class="onote" id="onote" aria-live="polite"></p>
     </form>
@@ -854,10 +883,11 @@
     if (!v('name')) return fail('Моля, напишете име.', co.name);
     if (v('phone').replace(/\D/g, '').length < 9) return fail('Моля, напишете телефон, на който да ви потърсим.', co.phone);
     if (v('address').length < 4) return fail('Моля, напишете улица и номер.', co.address);
+    if (!co.agree.checked) return fail('Отбележете, че сте прочели политиката за поверителност.', co.agree);
     onote.className = 'onote'; onote.textContent = 'Изпращаме поръчката…';
     next.disabled = true;
     const body = { items: [...cart].map(([key, qty]) => ({ key, qty })), name: v('name'), phone: v('phone'), town: v('town'),
-                   address: v('address'), details: v('details'), note: v('note'), payment: co.payment.value, when: co.when.value };
+                   address: v('address'), details: v('details'), note: v('note'), payment: co.payment.value, when: co.when.value, agree: true };
     try {
       const r = await fetch('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       const j = await r.json().catch(() => ({}));

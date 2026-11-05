@@ -7,8 +7,21 @@ Website for Sunny Complex, a pool and restaurant in Radomir, Bulgaria.
 | `/` | Home: pool, seasons, restaurant, reviews, contacts |
 | `/menu/` | Full menu, with a cart for home delivery |
 | `/reservation/` | Table booking on the floor plan |
-| `/admin/` | Staff: reservations |
+| `/reservation/status/` | The guest's own booking: confirmed or not, and cancel it |
+| `/privacy/` | Privacy policy (linked from the booking and checkout forms) |
+| `/admin/` | Staff: reservations, closing a day or blocking tables |
 | `/deliveries/` | Staff: delivery orders and the two couriers |
+
+After booking, the guest gets a link to `/reservation/status/?id=…&c=…` (also kept in their browser).
+It shows whether the staff confirmed the table and lets them cancel it until the booked hour.
+
+In `/admin/`, **Затвори деня или маси** closes the whole restaurant for the chosen day or blocks
+tables or whole halls, e.g. for a private party. The booking page then won't offer them. Bookings already
+made stay, and the admin says how many, so someone can call those guests. Events themselves are
+arranged by phone (the "Празници" section on the home page).
+
+Names, phones, addresses and notes are wiped automatically from bookings and orders older than
+12 months, as the privacy page says.
 
 ## Running it
 
@@ -34,3 +47,9 @@ after signing out) and show a "Демо" bar with **Примерен ден** (f
 and orders) and **Изчисти** (start empty).
 
 On localhost the real `server.py` is always used, never demo mode.
+
+## Moving to the site's own domain
+
+Link previews (Facebook, Viber) need full addresses. The `og:url` and `og:image` tags in `index.html`,
+`menu/`, `reservation/` and `privacy/` point at `https://izu83.github.io/SunnyComplex/`. Change them to
+the new domain when the site moves. The picture is `assets/share.jpg`.

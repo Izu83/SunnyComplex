@@ -111,6 +111,13 @@
   .day-head { display: flex; align-items: end; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 26px 0 18px; }
   .day-head h1 { font-size: clamp(2rem, 1.5rem + 2vw, 3rem); }
   .day-head .upd { color: var(--text-dim); font-size: .88rem; }
+  .day-head .dh-right { display: flex; align-items: center; gap: 12px 16px; flex-wrap: wrap; }
+  .day-head .btn { padding: 11px 18px; font-size: .9rem; }
+  .shut { display: grid; gap: 8px; margin: -4px 0 18px; }
+  .shut-row { display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap; padding: 10px 10px 10px 18px; border-radius: 18px; background: repeating-linear-gradient(135deg, #1c1813 0 10px, #17140f 10px 20px); box-shadow: inset 0 0 0 1px rgba(224,118,107,.45); }
+  .shut-row b { color: #ffb3a8; }
+  .shut-row span { color: var(--text-dim); }
+  .shut-row .btn { margin-left: auto; padding: 9px 14px; font-size: .85rem; }
   .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
   .stat { padding: 16px 18px; border-radius: 20px; background: var(--bg-2); box-shadow: var(--raised); display: grid; gap: 2px; }
   .stat b { font: 700 2.4rem/1 var(--font-display); color: var(--gold); font-feature-settings: "lnum" 1, "locl" 0; }
@@ -142,12 +149,16 @@
   .plan .tbl.st-seated .top { fill: #1f3a25; stroke: var(--st-seated); stroke-width: 2.5; }
   .plan .tbl.st-seated text { fill: #c9f2cf; }
   .plan .tbl.st-seated .chair, .plan .tbl.st-seated .bench { fill: #2c5234; stroke: var(--st-seated); }
+  .plan .tbl.held .top { fill: #15120e; stroke: #6b5f4c; stroke-width: 1.5; stroke-dasharray: 3 3; }
+  .plan .tbl.held text { fill: #6b5f4c; }
+  .plan .tbl.held .chair, .plan .tbl.held .bench { opacity: .35; }
   .plan .tbl.pick .top { filter: url(#glow); stroke-width: 3.5; }
   .plan .tbl text.who { font: 600 11px var(--font-text); }
   .lg-free { background: linear-gradient(#3a3329, #221e19); box-shadow: inset 0 0 0 1.5px rgba(242,181,68,.6); }
   .lg-pending { background: #3a2610; box-shadow: inset 0 0 0 2px var(--st-pending); }
   .lg-confirmed { background: var(--gold-metal); }
   .lg-seated { background: #1f3a25; box-shadow: inset 0 0 0 2px var(--st-seated); }
+  .lg-held { background: #15120e; box-shadow: inset 0 0 0 1.5px #6b5f4c; }
   .tip ul { margin: 6px 0 0; padding: 6px 0 0; list-style: none; border-top: 1px solid rgba(255,228,170,.1); display: grid; gap: 3px; }
   .tip li { display: flex; gap: 8px; }
   .tip li i { font-style: normal; font-weight: 600; }
@@ -207,6 +218,19 @@
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .edit-actions { display: flex; gap: 10px; flex-wrap: wrap; }
   .edit-actions .btn { flex: 1 1 160px; }
+  .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 5px; border-radius: 16px; background: #0a0908; box-shadow: var(--well); }
+  .seg label { position: relative; display: grid; }
+  .seg input { position: absolute; opacity: 0; inset: 0; margin: 0; }
+  .seg span { display: grid; place-items: center; min-height: 44px; padding: 6px; border-radius: 12px; text-align: center; font-weight: 600; font-size: .92rem; color: var(--text-dim); cursor: pointer; }
+  .seg input:checked + span { background: var(--surface); color: var(--gold); box-shadow: var(--raised); }
+  .seg input:focus-visible + span { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .pick-zone { display: grid; gap: 8px; }
+  .pick-zone + .pick-zone { margin-top: 6px; }
+  .pick-zone header { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-weight: 600; color: var(--text-dim); font-size: .88rem; }
+  .pick-zone header button { padding: 6px 12px; border: 0; border-radius: 999px; cursor: pointer; background: var(--surface); box-shadow: var(--raised); color: var(--gold); font-size: .8rem; font-weight: 600; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chips button { min-width: 44px; height: 40px; padding: 0 10px; border: 0; border-radius: 12px; cursor: pointer; background: var(--surface); box-shadow: var(--raised); color: var(--gold); font: 700 1.15rem/1 var(--font-display); font-feature-settings: "lnum" 1, "locl" 0; }
+  .chips button[aria-pressed="true"] { background: var(--gold-metal); color: #1d1404; box-shadow: var(--gold-press); }
 
   .toast { position: fixed; right: 16px; bottom: 16px; z-index: 60; max-width: min(380px, calc(100vw - 32px)); display: flex; gap: 12px; align-items: center; padding: 14px 16px; border-radius: 18px; background: #241f19; box-shadow: inset 0 1px 0 rgba(255,228,170,.1), inset 3px 0 0 var(--st-pending), 0 24px 50px -12px #000; opacity: 0; transition: opacity .3s var(--ease); }
   .toast.on { opacity: 1; }
@@ -302,8 +326,12 @@
   <main class="frame">
     <div class="day-head">
       <h1 id="dayTitle"></h1>
-      <span class="upd" id="updated" aria-live="polite"></span>
+      <div class="dh-right">
+        <span class="upd" id="updated" aria-live="polite"></span>
+        <button type="button" class="btn dark" id="shutBtn">Затвори деня или маси</button>
+      </div>
     </div>
+    <div class="shut" id="shut"></div>
 
     <section class="stats" aria-label="Денят накратко">
       <div class="stat"><b class="num" id="stRes">0</b><span>резервации</span></div>
@@ -321,6 +349,7 @@
             <li><i class="lg-pending"></i>Чака</li>
             <li><i class="lg-confirmed"></i>Потвърдена</li>
             <li><i class="lg-seated"></i>Дошли</li>
+            <li><i class="lg-held"></i>Блокирана</li>
           </ul>
         </div>
         <div class="hours" id="hours"></div>
@@ -368,6 +397,26 @@
       <button type="submit" class="btn">Запази</button>
       <button type="button" class="btn dark" id="editCancel">Затвори</button>
       <button type="button" class="btn dark danger" id="editDrop" hidden>Анулирай резервацията</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="edit" id="shutDlg" aria-labelledby="shutTitle">
+  <form id="shutForm" novalidate>
+    <div class="edit-head">
+      <div><h2 id="shutTitle">Затвори</h2><p id="shutSub">Сайтът няма да приема резервации за избраното. Резервациите, които вече има, остават.</p></div>
+      <button type="button" class="round" data-close aria-label="Затвори"><svg aria-hidden="true"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="seg" role="radiogroup" aria-label="Какво да се затвори">
+      <label><input type="radio" name="what" value="all" checked><span>Целия ресторант</span></label>
+      <label><input type="radio" name="what" value="some"><span>Само някои маси</span></label>
+    </div>
+    <div id="shutPick" hidden></div>
+    <label class="field"><span>Причина <i>(вижда се само тук)</i></span><input type="text" name="reason" maxlength="120" placeholder="Сватба, кръщене, фирмено парти"></label>
+    <p class="note" id="shutNote" aria-live="polite"></p>
+    <div class="edit-actions">
+      <button type="submit" class="btn">Затвори</button>
+      <button type="button" class="btn dark" data-close>Откажи</button>
     </div>
   </form>
 </dialog>
@@ -456,11 +505,24 @@
 
   /* ---------- State ---------- */
   const nowHour = () => Math.min(floor.last, Math.max(floor.open, new Date().getHours()));
-  const A = { day: today(), hour: nowHour(), list: [], tab: 'active', q: '', table: null, seen: null, waiting: 0 };
+  const A = { day: today(), hour: nowHour(), list: [], closures: [], tab: 'active', q: '', table: null, seen: null, waiting: 0 };
   const isToday = () => A.day.getTime() === today().getTime();
   const covering = (t, h) => A.list.find(b => b.table === t.id && ACTIVE.includes(b.status) && b.hour <= h && h < b.hour + DUR);
   const clashing = (table, h, exclude) => A.list.find(b => b.table === table && b.id !== exclude && ACTIVE.includes(b.status) && Math.abs(b.hour - h) < DUR);
   const shortName = s => s.length > 10 ? s.slice(0, 9) + '…' : s;
+  /* Held back for the whole day: the restaurant is closed, or the table is blocked */
+  const dayShut = () => A.closures.some(c => c.tables === null);
+  const isHeld = t => A.closures.some(c => c.tables === null || c.tables.includes(t.id));
+  /* "зала Непушачи, 3, 5" rather than every table number of a whole hall */
+  const heldLabel = ids => {
+    const rest = new Set(ids), parts = [];
+    Object.entries(ZONES).forEach(([z, name]) => {
+      const hall = TABLES.filter(t => t.zone === z).map(t => t.id);
+      if (hall.every(id => rest.has(id))) { parts.push(`зала ${name}`); hall.forEach(id => rest.delete(id)); }
+    });
+    return [...parts, ...[...rest].map(id => (byId[id].booth ? 'сепаре ' : '') + id)].join(', ');
+  };
+  const STATUS_NAME = b => b.status === 'cancelled' && b.guest_cancelled ? 'Отказана от госта' : STATUS[b.status].name;
 
   /* ---------- Hours ---------- */
   const hoursBox = $('#hours');
@@ -479,7 +541,7 @@
     $('#stGuests').textContent = active.reduce((s, b) => s + b.guests, 0);
     $('#stPend').textContent = pend;
     $('#stPendBox').classList.toggle('alert', pend > 0);
-    const freeNow = TABLES.filter(t => !covering(t, A.hour)).length;
+    const freeNow = TABLES.filter(t => !covering(t, A.hour) && !isHeld(t)).length;
     $('#stFree').textContent = `${freeNow}/${TABLES.length}`;
     $('#stFreeLbl').textContent = `свободни маси в ${hhmm(A.hour)}`;
     const w = $('#waiting');
@@ -497,11 +559,16 @@
     });
     $('#hourLbl').textContent = hhmm(A.hour);
 
+    /* Closed day, blocked tables */
+    $('#shut').innerHTML = A.closures.map(c => `<div class="shut-row"><b>${c.tables === null ? 'Ресторантът е затворен' : `Блокирани: ${heldLabel(c.tables)}`}</b>${c.reason ? `<span>${esc(c.reason)}</span>` : ''}<button type="button" class="btn dark" data-open="${c.id}">Отвори отново</button></div>`).join('');
+    $('#shutBtn').hidden = dayShut();
+
     /* Plan */
     TABLES.forEach(t => {
       const b = covering(t, A.hour);
-      t.g.setAttribute('class', `tbl ${b ? 'st-' + b.status : 'free'}${A.table === t.id ? ' pick' : ''}`);
-      t.g.setAttribute('aria-label', `${t.booth ? 'Сепаре' : 'Маса'} ${t.id}: ${b ? `${b.name}, ${people(b.guests)}, ${STATUS[b.status].name.toLowerCase()}` : 'свободна'}`);
+      const held = !b && isHeld(t);
+      t.g.setAttribute('class', `tbl ${b ? 'st-' + b.status : held ? 'held' : 'free'}${A.table === t.id ? ' pick' : ''}`);
+      t.g.setAttribute('aria-label', `${t.booth ? 'Сепаре' : 'Маса'} ${t.id}: ${b ? `${b.name}, ${people(b.guests)}, ${STATUS[b.status].name.toLowerCase()}` : held ? 'блокирана за деня' : 'свободна'}`);
       if (t.who) {
         t.who.textContent = b ? `${shortName(b.name)} · ${b.guests}` : '';
         t.num.setAttribute('y', t.c[1] + (b ? -6 : 1));
@@ -547,7 +614,7 @@
       const small = t && t.seats < b.guests ? ` · <span style="color:var(--st-noshow)">масата е за ${t.seats}</span>` : '';
       html += `<article class="res st-${b.status}${A.fresh?.has(b.id) ? ' fresh' : ''}" data-id="${b.id}">
         <div class="r-tbl"><b>${t ? t.id : '—'}</b><small>${t ? (t.booth ? 'сепаре' : ZONES[t.zone].toLowerCase()) : 'без маса'}</small></div>
-        <div class="r-who"><strong>${esc(b.name)}</strong><span class="pill">${STATUS[b.status].name}</span></div>
+        <div class="r-who"><strong>${esc(b.name)}</strong><span class="pill">${STATUS_NAME(b)}</span></div>
         <div class="r-meta"><span class="num">${hhmm(b.hour)} · ${people(b.guests)}${small}</span>${b.phone ? `<a href="tel:${esc(tel)}" class="num">${esc(b.phone)}</a>` : ''}<span>${b.source === 'web' ? 'от сайта' : 'от персонала'}</span>${b.note ? `<span class="r-note">${esc(b.note)}</span>` : ''}</div>
         <div class="r-act">${acts}<button type="button" data-act="edit">Промени</button></div>
       </article>`;
@@ -602,8 +669,12 @@
       const web = added.filter(b => b.source === 'web');
       if (web.length) notify(`<span><b>Нова заявка</b><br>${esc(web[0].name)}, ${hhmm(web[0].hour)}, ${web[0].table ? `маса ${web[0].table}` : 'без маса'}, ${people(web[0].guests)}${web.length > 1 ? ` и още ${web.length - 1}` : ''}</span>`);
     }
+    if (A.seenDay === day) {
+      const gone = j.reservations.filter(b => b.guest_cancelled && b.status === 'cancelled' && A.list.some(o => o.id === b.id && o.status !== 'cancelled'));
+      if (gone.length) notify(`<span><b>Гостът отказа</b><br>№ ${gone[0].id} · ${esc(gone[0].name)}, ${hhmm(gone[0].hour)}${gone[0].table ? `, маса ${gone[0].table}` : ''}</span>`, null, 'gone');
+    }
     A.seen = ids; A.seenDay = day;
-    A.list = j.reservations; A.waiting = j.pending_upcoming;
+    A.list = j.reservations; A.waiting = j.pending_upcoming; A.closures = j.closures || [];
     $('#updated').textContent = `Обновено в ${new Date().toLocaleTimeString('bg-BG', { hour: '2-digit', minute: '2-digit' })}`;
     render();
   }
@@ -615,7 +686,7 @@
   /* Bring the chosen hour into view in the scrolling row of hours */
   const centerHour = () => { const b = hoursBox.querySelector('[aria-pressed="true"]'); if (b) hoursBox.scrollLeft = b.offsetLeft - (hoursBox.clientWidth - b.offsetWidth) / 2; };
   async function setDay(d) {
-    A.day = d; A.table = null; A.list = []; A.seen = null;
+    A.day = d; A.table = null; A.list = []; A.closures = []; A.seen = null; A.seenDay = null;
     if (isToday()) A.hour = nowHour();
     render(); centerHour();
     await load().catch(err => notify(esc(err.message)));
@@ -679,8 +750,8 @@
     ef.table.innerHTML = '';
     ef.table.add(new Option('Без маса (съединени маси)', ''));
     TABLES.forEach(t => {
-      const c = sameDay && clashing(t.id, h, editing?.id);
-      ef.table.add(new Option(`${t.id} · ${t.seats} места · ${ZONES[t.zone]}${t.booth ? ' · сепаре' : ''}${c ? ` · заета (${c.name}, ${hhmm(c.hour)})` : ''}`, t.id));
+      const c = sameDay && clashing(t.id, h, editing?.id), held = sameDay && isHeld(t);
+      ef.table.add(new Option(`${t.id} · ${t.seats} места · ${ZONES[t.zone]}${t.booth ? ' · сепаре' : ''}${c ? ` · заета (${c.name}, ${hhmm(c.hour)})` : held ? ' · блокирана' : ''}`, t.id));
     });
     ef.table.value = keep;
   }
@@ -731,6 +802,63 @@
     finally { btn.disabled = false; }
   });
   $('#newBtn').addEventListener('click', () => openEdit(null, { table: A.table ?? '' }));
+
+  /* ---------- Closing the day or blocking tables (private parties) ---------- */
+  const sd = $('#shutDlg'), sf = $('#shutForm'), snote = $('#shutNote'), spick = $('#shutPick');
+  let picked = new Set();
+  function paintPick() {
+    const some = sf.what.value === 'some';
+    spick.hidden = !some;
+    if (!some) return;
+    spick.innerHTML = Object.entries(ZONES).map(([z, name]) => {
+      const ts = TABLES.filter(t => t.zone === z), all = ts.every(t => picked.has(t.id));
+      return `<section class="pick-zone"><header>${name}<button type="button" data-zone="${z}">${all ? 'Махни залата' : 'Цялата зала'}</button></header>
+        <div class="chips">${ts.map(t => `<button type="button" data-t="${t.id}" aria-pressed="${picked.has(t.id)}" aria-label="${t.booth ? 'Сепаре' : 'Маса'} ${t.id}">${t.id}</button>`).join('')}</div></section>`;
+    }).join('');
+  }
+  function shutWarn() {
+    /* Bookings already on the closed tables stay; say how many, so someone calls them */
+    const hit = A.list.filter(b => ACTIVE.includes(b.status) && (sf.what.value === 'all' || picked.has(b.table)));
+    const n = hit.length, what = sf.what.value === 'all' ? 'деня' : 'тези маси';
+    snote.className = 'note' + (n ? ' warn' : '');
+    snote.textContent = !n ? '' : n === 1
+      ? `Има 1 резервация за ${what}. Тя остава; обадете се на госта, ако трябва да я анулирате.`
+      : `Има ${n} резервации за ${what}. Те остават; обадете се на гостите, ако трябва да ги анулирате.`;
+  }
+  $('#shutBtn').addEventListener('click', () => {
+    picked = new Set(A.table ? [A.table] : []);
+    sf.reset(); if (A.table) sf.what.value = 'some';
+    $('#shutTitle').textContent = `Затвори ${longDay(A.day).toLowerCase()}`;
+    paintPick(); shutWarn(); sd.showModal();
+  });
+  sf.addEventListener('change', e => { if (e.target.name === 'what') { paintPick(); shutWarn(); } });
+  spick.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.t) { const id = +b.dataset.t; picked.has(id) ? picked.delete(id) : picked.add(id); }
+    else {
+      const ts = TABLES.filter(t => t.zone === b.dataset.zone), all = ts.every(t => picked.has(t.id));
+      ts.forEach(t => all ? picked.delete(t.id) : picked.add(t.id));
+    }
+    paintPick(); shutWarn();
+  });
+  sd.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => sd.close()));
+  sf.addEventListener('submit', async e => {
+    e.preventDefault();
+    const some = sf.what.value === 'some';
+    if (some && !picked.size) { snote.className = 'note warn'; snote.textContent = 'Изберете поне една маса.'; return; }
+    const btn = sf.querySelector('[type="submit"]'); btn.disabled = true;
+    try {
+      await api('/closures', { method: 'POST', body: JSON.stringify({ day: iso(A.day), tables: some ? [...picked] : null, reason: sf.reason.value.trim() }) });
+      sd.close(); await load();
+    } catch (err) { snote.className = 'note warn'; snote.textContent = err.message; }
+    finally { btn.disabled = false; }
+  });
+  $('#shut').addEventListener('click', async e => {
+    const b = e.target.closest('[data-open]'); if (!b) return;
+    b.disabled = true;
+    try { await api(`/closures/${b.dataset.open}`, { method: 'DELETE' }); await load(); }
+    catch (err) { notify(esc(err.message)); b.disabled = false; }
+  });
 
   /* ---------- Start ---------- */
   async function start() {

@@ -9,8 +9,10 @@
   let demo = null;
 
   /* ---------- Storage ---------- */
-  const blank = () => ({ reservations: [], orders: [], couriers: [{ id: 1, name: 'Доставчик 1' }, { id: 2, name: 'Доставчик 2' }], seq: { r: 0, o: 0 }, loggedIn: true });
-  const load = () => { try { return { ...blank(), ...JSON.parse(localStorage.getItem(KEY)) }; } catch { return blank(); } };
+  const blank = () => ({ reservations: [], orders: [], closures: [], couriers: [{ id: 1, name: 'Доставчик 1' }, { id: 2, name: 'Доставчик 2' }], seq: { r: 0, o: 0, c: 0 }, loggedIn: true });
+  const load = () => {
+    try { const db = { ...blank(), ...JSON.parse(localStorage.getItem(KEY)) }; db.seq.c = db.seq.c || 0; return db; } catch { return blank(); }
+  };
   const save = db => { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch {} };
 
   /* ---------- Helpers, as in server.py ---------- */
@@ -53,6 +55,19 @@
     if (!STATUSES.includes(status)) throw new Bad('Невалиден статус.');
     return { day, hour, table, guests, name, phone, note, status };
   }
+  const closedOn = (db, day) => {
+    const list = db.closures.filter(c => c.day === day);
+    return { whole: list.some(c => c.tables === null), held: new Set(list.flatMap(c => c.tables || [])) };
+  };
+  const newCode = () => Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 6);
+  const agreed = b => { if (b.agree !== true) throw new Bad('Отбележете, че сте прочели политиката за поверителност.'); return b; };
+  const guestView = b => ({ id: b.id, day: b.day, hour: b.hour, table: b.table, guests: b.guests, name: b.name, status: b.status,
+    guest_cancelled: !!b.guest_cancelled, can_cancel: ['pending', 'confirmed'].includes(b.status) && new Date(`${b.day}T${pad(b.hour)}:00:00`) > new Date() });
+  const findOwn = (db, id, code) => {
+    const b = db.reservations.find(x => x.id === +id);
+    if (!b || !b.code || b.code !== String(code)) throw new Bad('Не намираме тази резервация. Проверете линка или се обадете.', 404);
+    return b;
+  };
   const clash = (db, rec, exclude = null) => rec.table === null || !ACTIVE.includes(rec.status) ? null
     : db.reservations.find(b => b.id !== exclude && b.day === rec.day && b.table === rec.table && ACTIVE.includes(b.status) && Math.abs(b.hour - rec.hour) < floor().duration);
 
@@ -99,20 +114,31 @@
     const today = isoDay(new Date());
 
     if (method === 'GET' && path === 'availability') {
-      const day = parseDay(q.get('day'));
-      return done({ day, duration: floor().duration, bookings: db.reservations.filter(b => b.day === day && b.table !== null && ACTIVE.includes(b.status)).map(b => ({ table: b.table, hour: b.hour })) });
+      const day = parseDay(q.get('day')), { whole, held } = closedOn(db, day);
+      return done({ day, duration: floor().duration, bookings: db.reservations.filter(b => b.day === day && b.table !== null && ACTIVE.includes(b.status)).map(b => ({ table: b.table, hour: b.hour })),
+                    closed: whole, blocked: [...held].sort((a, b) => a - b), closed_days: [...new Set(db.closures.filter(c => c.tables === null && c.day >= today).map(c => c.day))].sort() });
     }
     if (method === 'POST' && path === 'reservations') {
-      const rec = checkReservation({ ...body, status: 'pending' }, false);
+      const rec = checkReservation({ ...agreed(body), status: 'pending' }, false);
+      const { whole, held } = closedOn(db, rec.day);
+      if (whole) throw new Bad('На този ден ресторантът е зает с частно събитие. Обадете се за друг ден.', 409);
+      if (held.has(rec.table)) throw new Bad(`Маса ${rec.table} не е свободна на този ден.`, 409);
       const hit = clash(db, rec);
       if (hit) throw new Bad(`Маса ${rec.table} вече е заета около ${hit.hour}:00.`, 409);
-      const row = { id: ++db.seq.r, ...rec, source: 'web', created_at: stamp(), updated_at: stamp() };
+      const row = { id: ++db.seq.r, ...rec, source: 'web', code: newCode(), guest_cancelled: false, created_at: stamp(), updated_at: stamp() };
       db.reservations.push(row);
-      return done({ id: row.id, status: row.status }, 201);
+      return done({ id: row.id, status: row.status, code: row.code }, 201);
+    }
+    if (method === 'GET' && path === 'booking') return done(guestView(findOwn(db, q.get('id'), q.get('code'))));
+    if (method === 'POST' && path === 'booking/cancel') {
+      const b = findOwn(db, body.id, body.code);
+      if (!guestView(b).can_cancel) throw new Bad('Тази резервация вече не може да се откаже от тук. Обадете се.', 409);
+      Object.assign(b, { status: 'cancelled', guest_cancelled: true, updated_at: stamp() });
+      return done(guestView(b));
     }
     if (method === 'GET' && path === 'orders/info') return done({ open: true, fee: dishes().fee, from: 9, until: 1 });
     if (method === 'POST' && path === 'orders') {
-      const o = checkOrder(body), now = new Date();
+      const o = checkOrder(agreed(body)), now = new Date();
       const row = { id: ++db.seq.o, day: serviceDay(now), ...o, status: 'new', courier: null, created_at: stamp(now), updated_at: stamp(now), accepted_at: null, sent_at: null, delivered_at: null };
       db.orders.push(row);
       return done({ id: row.id, total: row.total }, 201);
@@ -129,13 +155,14 @@
     if (method === 'GET' && path === 'admin/reservations') {
       const day = parseDay(q.get('day'));
       const list = db.reservations.filter(b => b.day === day).sort((a, b) => a.hour - b.hour || a.id - b.id);
-      return done({ day, duration: floor().duration, reservations: list, pending_upcoming: db.reservations.filter(b => b.status === 'pending' && b.day >= today).length });
+      return done({ day, duration: floor().duration, reservations: list, pending_upcoming: db.reservations.filter(b => b.status === 'pending' && b.day >= today).length,
+                    closures: db.closures.filter(c => c.day === day) });
     }
     if (method === 'POST' && path === 'admin/reservations') {
       const rec = checkReservation({ status: 'confirmed', ...body }, true);
       const hit = clash(db, rec);
       if (hit) throw new Bad(`Маса ${rec.table} вече е заета около ${hit.hour}:00.`, 409);
-      const row = { id: ++db.seq.r, ...rec, source: 'staff', created_at: stamp(), updated_at: stamp() };
+      const row = { id: ++db.seq.r, ...rec, source: 'staff', code: newCode(), guest_cancelled: false, created_at: stamp(), updated_at: stamp() };
       db.reservations.push(row);
       return done(row, 201);
     }
@@ -147,9 +174,23 @@
       const rec = checkReservation({ ...row, ...pick }, true, row.hour);
       const hit = clash(db, rec, row.id);
       if (hit) throw new Bad(`Маса ${rec.table} е заета около ${hit.hour}:00 (${hit.name}).`, 409);
-      Object.assign(row, rec, { updated_at: stamp() });
+      Object.assign(row, rec, { updated_at: stamp(), guest_cancelled: !!row.guest_cancelled && rec.status === row.status });
       return done(row);
     }
+    if (method === 'POST' && path === 'admin/closures') {
+      const day = parseDay(body.day);
+      let tables = body.tables ?? null;
+      if (tables !== null) {
+        const ids = new Set(floor().tables.map(t => t.id));
+        if (!Array.isArray(tables) || !tables.length || tables.some(t => !ids.has(t))) throw new Bad('Изберете маси.');
+        tables = [...new Set(tables)].sort((a, b) => a - b);
+      }
+      const row = { id: ++db.seq.c, day, tables, reason: String(body.reason || '').trim().slice(0, 120), created_at: stamp() };
+      db.closures.push(row);
+      return done(row, 201);
+    }
+    m = path.match(/^admin\/closures\/(\d+)$/);
+    if (m && method === 'DELETE') { db.closures = db.closures.filter(c => c.id !== +m[1]); return done({ ok: true }); }
     if (method === 'GET' && path === 'admin/orders') {
       const day = parseDay(q.get('day'));
       return done({ day, today: serviceDay(), orders: db.orders.filter(o => o.day === day).sort((a, b) => a.id - b.id), couriers: db.couriers,
